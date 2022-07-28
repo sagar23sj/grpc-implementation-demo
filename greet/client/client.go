@@ -23,7 +23,7 @@ func main() {
 
 	c := greetpb.NewGreetServiceClient(cc)
 
-	//Unary Streaming function - Greet
+	//Unary API function - Greet
 	// Greet(c)
 
 	// Server-Side Streaming function - GreetManyTimes
@@ -35,8 +35,11 @@ func main() {
 	//bidirectional streaming function - GreetEveryone
 	// GreetEveryone(c)
 
-	//unary streaming with Deadline
-	GreetWithDeadline(c)
+	//unary API with Deadline
+	// GreetWithDeadline(c)
+
+	//unary API with Error Handling
+	GreetWithErrorHandling(c)
 }
 
 func Greet(c greetpb.GreetServiceClient) {
@@ -268,4 +271,36 @@ func doGreetWithDeadline(c greetpb.GreetServiceClient, timeout time.Duration) {
 	}
 
 	fmt.Println("\nResponse From server : ", resp.GetResult())
+}
+
+func GreetWithErrorHandling(c greetpb.GreetServiceClient) {
+
+	fmt.Println("Starting to do a unary GRPC with Error Handling....")
+
+	req := greetpb.GreetWithErrorHandlingRequest{
+		Greeting: &greetpb.Greeting{
+			FirstName: "John",
+			LastName:  "John",
+		},
+	}
+
+	resp, err := c.GreetWithErrorHandling(context.Background(), &req)
+	if err != nil {
+		respErr, ok := status.FromError(err)
+		if ok {
+			//actual error from GRPC (user error)
+			fmt.Println("\nError Message : ", respErr.Message())
+			fmt.Println("\nError Code : ", respErr.Code())
+
+			if respErr.Code() == codes.InvalidArgument {
+				fmt.Println("Probably sent same first name and last name!")
+				return
+			}
+		} else {
+			log.Fatalf("error calling GreetWithErrorHandling : %v", err)
+			return
+		}
+	}
+
+	log.Printf("Response from Greet Unary Call with Error Handling : %v", resp.Result)
 }

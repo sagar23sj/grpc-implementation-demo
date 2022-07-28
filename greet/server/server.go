@@ -10,6 +10,8 @@ import (
 
 	"github.com/sagar23sj/go-grpc/greet/greetpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
@@ -119,6 +121,27 @@ func (*server) GreetWithDeadline(ctx context.Context, req *greetpb.GreetWithDead
 	result = "Hello " + firstName + " " + lastName + " !"
 	time.Sleep(3 * time.Second)
 	return &greetpb.GreetWithDeadlineResponse{Result: result}, nil
+}
+
+func (*server) GreetWithErrorHandling(ctx context.Context, req *greetpb.GreetWithErrorHandlingRequest) (*greetpb.GreetWithErrorHandlingResponse, error) {
+
+	fmt.Println("\nInvoking GreetWithErrorHandling Function to demonstrate error handling in GRPC")
+
+	result := ""
+
+	firstName := req.GetGreeting().GetFirstName()
+	lastName := req.GetGreeting().GetLastName()
+
+	if firstName == lastName {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			fmt.Sprintf("First Name: %v and Last Name : %v are equal, this should not happen", firstName, lastName),
+		)
+
+	}
+
+	result = "Hello " + firstName + " " + lastName + " !"
+	return &greetpb.GreetWithErrorHandlingResponse{Result: result}, nil
 }
 
 func main() {

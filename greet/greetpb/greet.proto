@@ -49,6 +49,15 @@ message GreetWithDeadlineResponse {
 	string result = 1;
 }
 
+message GreetWithErrorHandlingRequest {
+	Greeting greeting = 1;
+}
+
+message GreetWithErrorHandlingResponse {
+	string result = 1;
+}
+
+
 service GreetService{
 
 	//Unary
@@ -65,4 +74,7 @@ service GreetService{
 
 	//Unary Streaming with Deadline
 	rpc GreetWithDeadline(GreetWithDeadlineRequest) returns (GreetWithDeadlineResponse) {};
+
+	//Unary Streaming with Error Handling
+	rpc GreetWithErrorHandling(GreetWithErrorHandlingRequest) returns (GreetWithErrorHandlingResponse) {};
 }
